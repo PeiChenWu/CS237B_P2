@@ -23,7 +23,7 @@ class AccelerationLaw(tf.keras.layers.Layer):
         mu, th = inputs
 
         ########## Your code starts here ##########
-        a = None  # TODO
+        a = self.g * (tf.math.sin(th) - mu * tf.math.cos(th))
         ########## Your code ends here ##########
 
         # Ensure output acceleration is positive

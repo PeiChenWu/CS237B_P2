@@ -33,6 +33,8 @@ def wrench(f, p):
     """
     ########## Your code starts here ##########
     # Hint: you may find cross_matrix(x) defined above helpful. This should be one line of code.
+    
+    w = np.concatenate((f, cross_matrix(p).dot(f)), axis=None)
 
     ########## Your code ends here ##########
 
@@ -63,14 +65,30 @@ def cone_edges(f, mu):
     if D == 2:
         ########## Your code starts here ##########
         edges = [np.zeros(D)] * 2
-
+        fn = f/np.linalg.norm(f)
+        ft = np.array([[0,-1],[1,0]])@fn
+        
+        edges[0] = np.linalg.norm(f)*(fn+ft*mu)
+        edges[1] = np.linalg.norm(f)*(fn-ft*mu)
+        
         ########## Your code ends here ##########
 
     # Spatial wrenches
     elif D == 3:
         ########## Your code starts here ##########
         edges = [np.zeros(D)] * 4
-
+        
+        fn = f/np.linalg.norm(f)
+        fa = np.random.randn(3)
+        fa = np.cross(fn, fa)
+        fa = fa/np.linalg.norm(fa)
+        fb = np.cross(fn, fa)   
+        fb = fb/np.linalg.norm(fb)
+        
+        edges[0] = np.linalg.norm(f)*(fn+fa*mu)
+        edges[1] = np.linalg.norm(f)*(fn-fa*mu)
+        edges[2] = np.linalg.norm(f)*(fn+fb*mu)
+        edges[3] = np.linalg.norm(f)*(fn-fb*mu)
         
         ########## Your code ends here ##########
 
@@ -93,17 +111,21 @@ def form_closure_program(F):
     ########## Your code starts here ##########
     # Hint: you may find np.linalg.matrix_rank(F) helpful
     # TODO: Replace the following program (check the cvxpy documentation)
-
-    # k = cp.Variable(1)
-    # objective = cp.Minimize(k)
-    # constraints = [k >= 0]
+    
+    if np.linalg.matrix_rank(F) == np.min(F.shape): 
+        j = F.shape[1]
+        k = cp.Variable(j)
+        objective = cp.Minimize(np.ones(j).T@k)
+        constraints = [F@k==0,k>=1]
+    else:
+        return False
 
 
     ########## Your code ends here ##########
 
     prob = cp.Problem(objective, constraints)
     prob.solve(verbose=False, solver=cp.ECOS)
-
+    
     return prob.status not in ['infeasible', 'unbounded']
 
 def is_in_form_closure(normals, points):
@@ -120,8 +142,17 @@ def is_in_form_closure(normals, points):
     """
     ########## Your code starts here ##########
     # TODO: Construct the F matrix (not necessarily 6 x 7)
-    F = np.zeros((6,7))
-
+    
+    n = normals[0].shape[0]
+    j = len(normals)
+    if n == 2:
+        F = np.zeros((3,j))
+    elif n==3:
+        F = np.zeros((6,j))
+    
+    for i in range(j):
+        F[:,i] = wrench(normals[i],points[i])
+        
 
     ########## Your code ends here ##########
 
@@ -142,9 +173,23 @@ def is_in_force_closure(forces, points, friction_coeffs):
     """
     ########## Your code starts here ##########
     # TODO: Call cone_edges() to construct the F matrix (not necessarily 6 x 7)
-    F = np.zeros((6,7))    
-
+    n = forces[0].shape[0]
+    j = len(forces)
+    
+    if n == 2:
+        F = np.zeros((3,2*j))
+        mul = 2
+    elif n==3:
+        F = np.zeros((6,4*j))
+        mul = 4
+    
+    for i in range(j):
+        edges = cone_edges(forces[i], friction_coeffs[i])
+        p = points[i]
+        for k,edge in enumerate(edges):
+            F[:,i*mul+k] = wrench(edge,p)
 
     ########## Your code ends here ##########
 
     return form_closure_program(F)
+

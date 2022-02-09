@@ -111,7 +111,7 @@ def build_baseline_model():
     base_model.summary()
     base_model.compile(loss='mse')
     
-    pretrain = tf.keras.layers.Dense(32)(base_model(img_input)) # kind of reshape to [32]
+    pretrain = tf.keras.layers.Dense(32)(base_model(img_input)) # kind of reshape to 32
     
     p_class = tf.keras.layers.Dense(32)(pretrain) # fully connected layer
     a_pred = tf.keras.layers.Dense(1)(p_class)

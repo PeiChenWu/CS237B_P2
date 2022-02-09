@@ -59,19 +59,21 @@ def build_model():
     # TODO: Create your neural network and replace the following two layers
     #       according to the given specification.
 
-    
     base_model = tf.keras.applications.InceptionV3(
-        input_shape = DIM_IMG,
+        input_shape = (DIM_IMG[0], DIM_IMG[1], 3),
         include_top = False,
         pooling = 'avg',
         weights = 'imagenet',
     )
     base_model.summary()
     base_model.compile(loss='mse')
+
+    pretrain = tf.keras.layers.Dense(32)(base_model(img_input)) # kind of reshape to [32]
     
-    p_class = tf.keras.layers.Softmax(32, name='p_class')(base_model(img_input))
-    mu = tf.keras.layers.Dense(32, name='mu')(p_class) # Do we need to input p_class? how about mu_pred and *The dot product*?
-    # remove bias term
+    # last two layers
+    p_class = tf.keras.layers.Softmax(name='p_class')(pretrain)
+    mu = tf.keras.layers.Dense(1, use_bias=False, name='mu')(p_class)
+    
     ########## Your code ends here ##########
 
     a_pred = AccelerationLaw(name='a')((mu, th_input))
@@ -101,7 +103,7 @@ def build_baseline_model():
     # TODO: Replace the following with your model from build_model().
     
     base_model = tf.keras.applications.InceptionV3(
-        input_shape = DIM_IMG,
+        input_shape = (DIM_IMG[0], DIM_IMG[1], 3),
         include_top = False,
         pooling = 'avg',
         weights = 'imagenet',
@@ -109,8 +111,10 @@ def build_baseline_model():
     base_model.summary()
     base_model.compile(loss='mse')
     
-    # add dense 32 layer
-    a_pred = tf.keras.layers.Dense(1)(base_model(img_input))
+    pretrain = tf.keras.layers.Dense(32)(base_model(img_input)) # kind of reshape to [32]
+    
+    p_class = tf.keras.layers.Dense(32)(pretrain) # fully connected layer
+    a_pred = tf.keras.layers.Dense(1)(p_class)
     
     ########## Your code ends here ##########
 

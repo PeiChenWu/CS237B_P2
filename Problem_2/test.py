@@ -24,7 +24,8 @@ class TestGraspOptimization(unittest.TestCase):
         self.assertTrue(np.linalg.norm(forces[0] - np.array([0.5, 0.5])) < TOL_ERR)
         self.assertTrue(np.linalg.norm(forces[1] - np.array([-0.5, 0.5])) < TOL_ERR)
 
-"""
+
+
     def test_spatial_grasp_1(self):
         # Grasping a cube
         grasp_normals = [np.array([1., 0., 0.]),
@@ -41,6 +42,7 @@ class TestGraspOptimization(unittest.TestCase):
         self.assertTrue(np.linalg.norm(forces[0] - np.array([0., 0., 0.])) < TOL_ERR)
         self.assertTrue(np.linalg.norm(forces[1] - np.array([0., 0.5, 0.5])) < TOL_ERR)
         self.assertTrue(np.linalg.norm(forces[2] - np.array([0., 0.5, -0.5])) < TOL_ERR)
+    
 
     def test_planar_force_closure_1(self):
         # Grasping a square
@@ -56,7 +58,7 @@ class TestGraspOptimization(unittest.TestCase):
         self.assertTrue(len(forces) == 2)
         self.assertTrue(np.linalg.norm(forces[0] - np.array([0.5, 0.5])) < TOL_ERR)
         self.assertTrue(np.linalg.norm(forces[1] - np.array([-0.5, 0.5])) < TOL_ERR)
-"""
+
 
 
 if __name__ == '__main__':

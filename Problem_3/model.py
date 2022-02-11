@@ -72,8 +72,7 @@ def build_model():
     
     # last two layers
     p_class = tf.keras.layers.Softmax(name='p_class')(pretrain)
-    mu = tf.keras.layers.Dense(1, use_bias=False, name='mu')(p_class)
-    
+    mu = tf.keras.layers.Dense(1, use_bias=False, name='mu')(p_class) # For having non-negative mu: tf.keras.constraints.NonNeg
     ########## Your code ends here ##########
 
     a_pred = AccelerationLaw(name='a')((mu, th_input))
@@ -115,7 +114,6 @@ def build_baseline_model():
     
     p_class = tf.keras.layers.Dense(32)(pretrain) # fully connected layer
     a_pred = tf.keras.layers.Dense(1)(p_class)
-    
     ########## Your code ends here ##########
 
     return tf.keras.Model(inputs=[img_input, th_input], outputs=[a_pred])

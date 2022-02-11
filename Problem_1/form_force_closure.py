@@ -66,7 +66,7 @@ def cone_edges(f, mu):
         ########## Your code starts here ##########
         edges = [np.zeros(D)] * 2
         fn = f/np.linalg.norm(f)
-        ft = np.array([[0,-1],[1,0]])@fn
+        ft = np.array([[0,-1],[1,0]])@fn # rotate fn by 90 degrees
         
         edges[0] = np.linalg.norm(f)*(fn+ft*mu)
         edges[1] = np.linalg.norm(f)*(fn-ft*mu)
@@ -146,7 +146,7 @@ def is_in_form_closure(normals, points):
     n = normals[0].shape[0]
     j = len(normals)
     if n == 2:
-        F = np.zeros((3,j))
+        F = np.zeros((3,j)) 
     elif n==3:
         F = np.zeros((6,j))
     
